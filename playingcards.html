@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+    <head>
+<style>
+body {
+  background: #070f27;
+}
+.container {
+  width: 250px;
+  margin: 50px auto;
+}
+
+.controls {
+  margin-top: 30px;
+  text-align: center;
+}
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #fff;
+  display: inline-block;
+  margin: 5px;
+  cursor: pointer;
+}
+
+
+.card {
+  width:250px;
+  height:300px;
+  margin-right:10px;
+  position:relative;
+  transform-style: preserve-3d; 
+}
+
+.side-front, .side-back {
+  position:absolute;
+  width:100%;
+  height:100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  -ms-backface-visibility: hidden;
+  border-radius: 6px;
+  z-index: 1;
+  background-size: cover;
+  background-position: 50% 50%;
+}
+
+</style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="card">
+              <div class="side-back"></div>
+              <div class="side-front active-side"></div>   
+        </div>
+        
+        <div class="controls"></div>
+      </div>
+      <script>
+        var cardsData = {
+  cards: [
+    {
+      background:
+        "url(https://cdn.shopify.com/s/files/1/0901/8716/products/bicyle-inspire-playing-cards-deck-queen-of-hearts_2048x.png?v=1501463871)",
+      id: "1"
+    },
+    {
+      background:
+        "url(https://cdn.shopify.com/s/files/1/0901/8716/products/bicyle-inspire-playing-cards-joker_2048x.png?v=1501463876)",
+      id: "2"
+    },
+    {
+      background:
+        "url(https://cdn.shopify.com/s/files/1/0901/8716/products/playing-cards-noc-deck-v3s-kingwide_2048x.png?v=1497136264)",
+      id: "3"
+    }
+  ]
+};
+
+var dotsHtml = "";
+for (var key in cardsData.cards) {
+  dotsHtml += '<div class="dot" data-background="' + cardsData.cards[key].background +'"></div>';
+}
+
+$(".controls").html(dotsHtml);
+
+// TWEENMAX
+var currentAnimation = new TimelineMax();
+var master = new TimelineMax();
+var defaultCardFace = cardsData.cards[0].background;
+var cardRotation = -5;
+
+
+master.add(setup);
+
+
+function setup() {
+  var tl = new TimelineMax();
+  tl
+    .set([".side-front", ".side-back"], { rotation: cardRotation })
+    .set(".side-front", { backgroundImage: defaultCardFace, transformPerspective: 1500 })
+    .set(".side-back", { rotationY: -180, transformPerspective: 1500 });
+  return tl;
+}
+
+function flipCard(background) {
+  cardRotation = (cardRotation == -5) ?  5 : -5;
+  var tl = new TimelineMax();
+  tl
+    .to("[class^=side-]", 2.25, {rotation: cardRotation}, 0.25)
+    .to( $(".active-side").siblings("[class^=side-]"), 2, { rotationY: "+=180"}, 0)
+    .to( $(".active-side"), 2,{ rotationY: "+=180", onStart: changeCardFace, onStartParams: [background]}, 0 );
+  return tl;
+}
+
+function changeCardFace(cardBackground) {
+  var currentCardFace = $(this.target).removeClass("active-side");
+  currentCardFace.siblings("[class^=side-]").addClass("active-side");
+  var newCardFace = $(this.target).siblings("[class^=side-]");
+  TweenMax.set(newCardFace, { backgroundImage: cardBackground });
+}
+
+$(".dot").click(function() {
+  if (!currentAnimation.isActive()) {
+    var currentDot = $(this);    
+    currentAnimation = flipCard(currentDot.attr("data-background"));
+  }
+});
+
+      </script>
+    </body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+    <head>
+<style>
+@font-face {
+  font-family: cards;
+  src: url("https://rlbaxter.us/fonts/cards.ttf");
+}
+
+.playing-card {
+  position: relative;
+  width: 200px;
+  height: 300px;
+  display: inline-block;
+  padding: 20px;
+  cursor: pointer;
+  font-family: cards;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.playing-card::before {
+  content: '';
+  display: block;
+  /*start background shamelessly stolen from interwebs https://lea.verou.me/css3patterns/#japanese-cube*/
+  background-color:#556;
+  background-image: linear-gradient(30deg, #445 12%, transparent 12.5%, transparent 87%, #445 87.5%, #445),
+  linear-gradient(150deg, #445 12%, transparent 12.5%, transparent 87%, #445 87.5%, #445),
+  linear-gradient(30deg, #445 12%, transparent 12.5%, transparent 87%, #445 87.5%, #445),
+  linear-gradient(150deg, #445 12%, transparent 12.5%, transparent 87%, #445 87.5%, #445),
+  linear-gradient(60deg, #99a 25%, transparent 25.5%, transparent 75%, #99a 75%, #99a),
+  linear-gradient(60deg, #99a 25%, transparent 25.5%, transparent 75%, #99a 75%, #99a);
+  background-size:80px 140px;
+  background-position: 0 0, 0 0, 40px 70px, 40px 70px, 0 0, 40px 70px;
+  /*end stolen background*/
+}
+
+.playing-card::before,
+.playing-card .card-front {
+  width: 200px;
+  height: 300px;
+  border-radius: 8px;
+  transition: 1s all;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+.card-front {
+  background: #f2f2f2;
+  position: relative;
+  font-size: 29px;
+  text-align: center;
+  padding: 20px;
+  box-sizing: border-box;
+  transform: rotatey(-180deg);
+  color: #444;
+  display: flex;
+  align-items: center;
+}
+
+.card-front span {
+  flex: 1;
+}
+
+.card-front[data-card^="J"],
+.card-front[data-card^="A"],
+.card-front[data-card^="K"],
+.card-front[data-card^="Q"] {
+  font-size: 100px;
+}
+
+.card-front[data-card^="2"],
+.card-front[data-card^="3"],
+.card-front[data-card^="4"] {
+  font-size: 50px;
+}
+
+.card-front[data-card^="5"],
+.card-front[data-card^="6"] {
+  font-size: 47px;
+}
+
+.card-front[data-card^="7"],
+.card-front[data-card^="8"],
+.card-front[data-card^="9"] {
+  font-size: 35px;
+}
+
+.playing-card.flipped::before {
+   transform: rotatey(-180deg);
+}
+
+.playing-card.flipped .card-front {
+   transform: rotatey(0deg);
+}
+
+.card-front.hearts,
+.card-front.diams {
+  color: firebrick;
+}
+
+.card-front::before,
+.card-front::after {
+  content: attr(data-card);
+  font-size: 22px;
+  position: absolute;
+  padding: 10px;
+  letter-spacing: 0.2em;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.card-front::before {
+  top: 0;
+  left: 0;
+}
+
+.card-front::after {
+  bottom: 0;
+  right: 0;
+  transform: rotate(180deg);
+}
+</style>
+    </head>
+    <body>
+        <h3>Click the cards. Do it!</h3>
+        <p><button onclick="playingCards.shuffle()">Shuffle Deck</button></p>
+        <div id="deck"></div>
+    </body>
+    <script>
+        const playingCards = (function() {
+  const suits = ['hearts', 'diams', 'clubs', 'spades'];
+  const ranks = ['A', 'K', 'Q', 'J', 10, 9, 8, 7, 6, 5, 4, 3, 2];
+  const cards = suits.reduce((deck, suit) => {
+    return [
+      ...deck,
+      ...ranks.map(rank => ({suit, rank}))
+    ];
+  }, [{rank: 'Joker'}, {rank: 'Joker'}]);
+
+  function _render(cards) {
+    document.getElementById('deck').innerHTML = cards.reduce((str, card) => {
+      return str += _generateCard(card)
+    }, '');
+  }
+
+  function _shuffle(cards) {
+    return cards.sort(() => Math.random() - 0.5);
+  }
+  
+  function _generateCard(card) {
+    const suitString = card.suit ? `&${card.suit}; ` : '';
+    const displays = {
+      A: suitString,
+      K: '&#9818;',
+      Q: '&#9819;',
+      J: '&#x2694;',
+      Joker: '&#127183;'
+    };
+    const cardDisplay = displays[card.rank] || suitString.repeat(card.rank);
+    return `
+      <div onclick="playingCards.flip(this)" class="playing-card">
+        <div class="card-front ${card.suit || ''}" data-card="${card.rank}${suitString}">
+          <span>${cardDisplay}</span>
+        </div>
+      </div>
+    `;
+  }
+  
+  // public shuffle: hides all cards, shuffles cards, and re-renders
+  function shuffle() {
+    const allCards = document.getElementsByClassName('playing-card');
+    if (allCards.length) {
+      for (let card of allCards) {
+        card.classList.remove('flipped');
+      }
+      setTimeout(() => _render(_shuffle(cards)), 1000);
+    } else {
+      _render(_shuffle(cards));
+    }
+  }
+
+  return {
+    shuffle,
+    flip: card => card.classList.toggle('flipped'),
+  };
+})();
+
+playingCards.shuffle();
+
+    </script>
+</html>

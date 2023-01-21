@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html>
+    <head>
+<style>
+@import compass
+
+$cardwidth: 12rem
+$cardheight: ($cardwidth * 1.4) // poker card dimensions
+$cardtablesurface: 'http://us.cdn1.123rf.com/168nwm/ptahi/ptahi1210/ptahi121000002/15713955-green-baize-seamless-background.jpg'
+$cardfinish: 'http://subtlepatterns.subtlepatterns.netdna-cdn.com/patterns/whitey.png'
+$cardbackface: 'http://www.titanui.com/wp-content/uploads/2013/01/Violet-Classical-Pattern-Background-1.jpg'
+$suitred: #a00
+$suitblack: #222
+$highlightcardcolor: rgba(255,255,200,0.8)
+$jackimage: 'http://placekitten.com/100/186'
+$queenimage: 'http://placekitten.com/100/182'
+$kingimage: 'http://placekitten.com/100/188'
+
+=highlightcard($xmove,$ymove,$glowcolor: $highlightcardcolor)
+  left: $xmove
+  top: $ymove
+  cursor: pointer
+  +box-shadow(inset 0 0 80px rgba(150,100,50,0.3), 0 0 30px $glowcolor)
+
+// ---------------
+
+body
+  background-image: url($cardtablesurface)
+  font: 100% 'Arial Narrow'
+
+.header
+  height: 25px
+  background: #222
+  color: #eee
+  text-align: center
+  font: 12px/25px Helvetica, Verdana, Sans-Serif
+  > A
+    color: #999
+  
+#hand
+  @extend %cards
+  $numcards: 4
+  width: 150px
+  height: 225px
+  > LI
+    position: absolute
+    +transition(top 0.5s ease 0.1s, left 0.5s ease 0.2s, transform 0.5s ease 0.2s)
+    $angle: -3deg
+    @for $i from 1 through $numcards
+      &:nth-child(#{$i})
+        +transform(rotate(#{$angle}))
+      $angle: $angle + 3deg
+    &:hover
+      +highlightcard(0,-30px)
+  &:hover > LI
+    $angle: -10deg
+    $position: 0px
+    @for $i from 1 through $numcards
+      &:nth-child(#{$i})
+        +transform(rotate(#{$angle}))
+        left: #{$position}
+      $angle: $angle + 10deg
+      $position: $position + 30px
+      
+#spread
+  @extend %cards
+  $numcards: 13
+  width: 450px
+  height: 250px
+  > LI
+    position: absolute
+    $angle: -40deg
+    $positionX: 0em
+    $positionY: 16px
+    $adjust: 5px
+    +transition(top 0.5s ease 0.1s)
+    @for $i from 1 through $numcards
+      &:nth-child(#{$i})
+        +transform(translate(#{$positionX},#{$positionY}) rotate(#{$angle}))
+      $angle: $angle + 6deg     
+      $positionX: $positionX + 1.6em
+      $positionY: $positionY - $adjust
+      $adjust: $adjust - 1px
+    &:hover
+      +highlightcard(0,-40px)
+      
+#grid
+  @extend %cards
+  width: 800px
+  > LI
+    position: relative
+    float: left
+    margin: 5px -46px 5px 0px
+    +transition(top 0.5s ease 0.1s, left 0.5s ease 0.1s)
+    &:hover
+      +highlightcard(-40px,-10px)
+
+// ---------------       
+      
+%clearfix
+  &:before, &:after
+    content: ""
+    display: table
+  &:after
+    clear: both
+
+%cardtablemarkings
+  border: 7px solid #030
+  +border-radius(20px)
+
+%cards
+  position: relative
+  margin: 5% auto 10%
+  @extend %cardtablemarkings
+  @extend %clearfix
+  > LI
+    top: 0px
+    left: 0px
+    list-style: none
+    width: $cardwidth
+    height: $cardheight
+    background-color: #fff
+    background-image: url($cardfinish)
+    +border-radius(15px)
+    +box-shadow(inset 0 0 80px rgba(150,100,50,0.5), 0 0 3px rgba(150,100,50,1))
+    +transform-style(preserve-3d)
+    +backface-visibility(hidden)
+    +perspective(1000)
+    +transform(translateZ(0deg),rotate(0deg))
+    &[data-value]
+      @extend %cardface
+    &:not([data-value])
+      @extend %cardback
+
+%cardface
+  &[data-value*='♣'], &[data-value*='♠'] 
+    color: $suitblack
+  &[data-value*='♦'], &[data-value*='♥'] 
+    color: $suitred
+  &:before, &:after
+    content: attr(data-value)
+    text-align: center
+    width: 1em
+    position: absolute
+    font-size: 1.8em
+    line-height: 0.85em
+    margin-top: 4%
+    margin-left: 0%
+  &:after
+    right: 0
+    bottom: 4%
+    +transform(rotate(180deg))
+  > P
+    display: block
+    width: 100%
+    height: 100%
+    font-size: 4rem
+    > SPAN:first-child
+      display: none
+  $Hleft: 0
+  $Hright: 4.6rem
+  $Hcenter: 33px
+  $Vcenter: 80px
+  $exactcenter: 35px 80px
+  $edge: 0px
+  $Vuppermiddle: 200px
+  $Vhighmiddle: 70px
+  $Vtopmiddle: 15px
+  $Vmiddle: 68px
+  $blur: 0px
+  overflow: hidden
+  &[data-value^='A'] > P
+    width: 0.65em
+    height: 0.65em
+    line-height: 0.5em
+    text-align: center
+    margin: auto
+    margin-top: 120px
+    &:after
+      content: ''
+ 
+  &[data-value='A ♠'] > P
+    margin-top: 80px
+    font-size: 10em
+    +text-shadow(-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff,0 -3px 0 #000,-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000,2px 2px 0 #000)
+  
+  &[data-value^='2'] > P
+    line-height: 0.5em
+    width: 0.65em
+    height: 0.65em
+    margin-top: 30px
+    margin-left: 80px
+    &:after
+      content: attr(data-suit)
+      display: inline-block
+      +transform(rotate(180deg))
+      padding-bottom: 140px
+  
+  &[data-value^='3'] > P
+    line-height: 0.5em
+    width: 0.65em
+    height: 0.65em
+    margin-top: 30px
+    margin-left: 80px
+    +text-shadow(0 80px $blur)
+    &:after
+      content: attr(data-suit)
+      display: inline-block
+      +transform(rotate(180deg))
+      padding-bottom: 140px
+      +text-shadow(0 80px $blur transparent)
+  
+  &[data-value^='4'] > P
+    line-height: 0.5em
+    width: 0.65em
+    height: 0.65em
+    margin-top: 30px
+    margin-left: 45px
+    +text-shadow($Hright $edge $blur)
+    &:after
+      content: attr(data-suit)
+      display: inline-block
+      +transform(rotate(180deg))
+      padding-bottom: 140px
+      +text-shadow(-70px 0 $blur)
+      
+  &[data-value^='5'] > P
+    line-height: 0.5em
+    width: 0.65em
+    height: 0.65em
+    margin-top: 30px
+    margin-left: 45px
+    +text-shadow($Hright $edge $blur, 40px 80px $blur)
+    &:after
+      content: attr(data-suit)
+      display: inline-block
+      +transform(rotate(180deg))
+      padding-bottom: 140px
+      +text-shadow(-70px 0 $blur)
+  
+  &[data-value^='6'] > P
+    line-height: 0.5em
+    width: 0.65em
+    height: 0.65em
+    margin-top: 30px
+    margin-left: 45px
+    +text-shadow(0 80px $blur, 70px 80px $blur, 70px 0px $blur)
+    &:after
+      content: attr(data-suit)
+      display: inline-block
+      +transform(rotate(180deg))
+      padding-bottom: 140px
+      +text-shadow(-66px 0px $blur)
+  
+  &[data-value^='7'] > P
+    line-height: 0.5em
+    width: 0.65em
+    height: 0.65em
+    margin-top: 30px
+    margin-left: 45px
+    +text-shadow($Hright $edge $blur, 40px 40px $blur, 0px 80px $blur, 75px 80px $blur)
+    &:after
+      content: attr(data-suit)
+      display: inline-block
+      +transform(rotate(180deg))
+      padding-bottom: 140px
+      +text-shadow(-70px 0 $blur)
+  
+  &[data-value^='8'] > P
+    line-height: 0.5em
+    width: 0.65em
+    height: 0.65em
+    margin-top: 30px
+    margin-left: 45px
+    +text-shadow($Hright $edge $blur, 40px 40px $blur, 0px 80px $blur, 75px 80px $blur)
+    &:after
+      content: attr(data-suit)
+      display: inline-block
+      +transform(rotate(180deg))
+      padding-bottom: 140px
+      +text-shadow(-70px 0 $blur, -35px 45px $blur)
+      
+  &[data-value^='9'] > P
+    line-height: 0.5em
+    width: 0.65em
+    height: 0.65em
+    margin-top: 30px
+    margin-left: 45px
+    +text-shadow($Hright $edge $blur, 40px 82px $blur, 0 50px $blur, 75px 50px $blur)
+    &:after
+      content: attr(data-suit)
+      display: inline-block
+      +transform(rotate(180deg))
+      padding-bottom: 140px
+      +text-shadow(-70px 0 $blur, 0 50px $blur, -70px 50px $blur)
+      
+  &[data-value^='10'] > P
+    line-height: 0.5em
+    width: 0.65em
+    height: 0.65em
+    margin-top: 30px
+    margin-left: 45px
+    +text-shadow($Hright $edge $blur, 40px 28px $blur, 0 50px $blur, 75px 50px $blur)
+    &:after
+      content: attr(data-suit)
+      display: inline-block
+      +transform(rotate(180deg))
+      padding-bottom: 140px
+      +text-shadow(-70px 0 $blur, 0 50px $blur, -35px 28px $blur, -70px 50px $blur)
+      
+  &[data-value^='J'] > P,
+  &[data-value^='Q'] > P,
+  &[data-value^='K'] > P
+    width: 65%
+    height: 80%
+    left: 50%
+    margin-left: 33px
+    margin-top: 25px
+    color: transparent
+    border: 1px solid #000
+    background-position: center
+    background-size: cover
+  &[data-value^='J'] > P
+    background-image: url($jackimage)
+  &[data-value^='Q'] > P
+    background-image: url($queenimage)
+  &[data-value^='K'] > P
+    background-image: url($kingimage)
+    
+%cardback
+  > P
+    width: 90%
+    height: 92%
+    margin: 5% auto 0
+    background-image: url($cardbackface)
+    background-position: center center
+    +border-radius(7px)
+</style>
+    </head>
+    <body>
+        <div class="header">
+            CSS Card Tricks -
+            <a href="https://designshack.net/?p=38208">Click Here</a>
+            to head to Desiign Shack article
+          </div>
+          <ul id="hand">
+            <!-- the space in the data-value string is important -->
+            <li data-value="J ♦">
+              <p data-suit="♦"><span>J</span><span>♦</span></p>
+            </li>
+            <li data-value="Q ♥">
+              <p data-suit="♥♣"><span>Q</span><span>♥</span></p>
+            </li>
+            <li data-value="K ♣">
+              <p data-suit="♣"><span>K</span><span>♣</span></p>
+            </li>
+            <li data-value="A ♠">
+              <p data-suit="♠"><span>A</span><span>♠</span></p>
+            </li>
+          </ul>
+          <ul id="spread">
+            <li data-value="A ♥">
+              <p data-suit="♥"><span>A</span><span>♥</span></p>
+            </li>
+            <li data-value="2 ♥">
+              <p data-suit="♥"><span>2</span><span>♥</span></p>
+            </li>
+            <li data-value="3 ♥">
+              <p data-suit="♥"><span>3</span><span>♥</span></p>
+            </li>
+            <li data-value="4 ♥">
+              <p data-suit="♥"><span>4</span><span>♥</span></p>
+            </li>
+            <li data-value="5 ♥">
+              <p data-suit="♥"><span>5</span><span>♥</span></p>
+            </li>
+            <li data-value="6 ♥">
+              <p data-suit="♥"><span>6</span><span>♥</span></p>
+            </li>
+            <li data-value="7 ♥">
+              <p data-suit="♥"><span>7</span><span>♥</span></p>
+            </li>
+            <li data-value="8 ♥">
+              <p data-suit="♥"><span>8</span><span>♥</span></p>
+            </li>
+            <li data-value="9 ♥">
+              <p data-suit="♥"><span>9</span><span>♥</span></p>
+            </li>
+            <li data-value="10 ♥">
+              <p data-suit="♥"><span>10</span><span>♥</span></p>
+            </li>
+            <li data-value="J ♥">
+              <p data-suit="♥"><span>J</span><span>♥</span></p>
+            </li>
+            <li data-value="Q ♥">
+              <p data-suit="♥"><span>Q</span><span>♦</span></p>
+            </li>
+            <li data-value="K ♥">
+              <p data-suit="♥"><span>K</span><span>♥</span></p>
+            </li>
+          </ul>
+          <ul id="grid">
+            <li data-value="A ♠">
+              <p data-suit="♠"><span>A</span><span>♠</span></p>
+            </li>
+            <li data-value="2 ♦">
+              <p data-suit="♦"><span>2</span><span>♣</span></p>
+            </li>
+            <li data-value="3 ♣">
+              <p data-suit="♣"><span>3</span><span>♣</span></p>
+            </li>
+            <li data-value="4 ♥">
+              <p data-suit="♥"><span>4</span><span>♥</span></p>
+            </li>
+            <li data-value="5 ♠">
+              <p data-suit="♠"><span>5</span><span>♠</span></p>
+            </li>
+            <li data-value="6 ♦">
+              <p data-suit="♦"><span>6</span><span>♦</span< /p>
+            </li>
+            <li data-value="7 ♣">
+              <p data-suit="♣"><span>7</span><span>♣</span></p>
+            </li>
+            <li data-value="8 ♥">
+              <p data-suit="♥"><span>8</span><span>♥</span></p>
+            </li>
+            <li data-value="9 ♠">
+              <p data-suit="♠"><span>9</span><span>♠</span></p>
+            </li>
+            <li data-value="10 ♦">
+              <p data-suit="♦"><span>10</span><span>♦</span></p>
+            </li>
+            <li data-value="J ♣">
+              <p data-suit="♣"><span>J</span><span>♣</span></p>
+            </li>
+            <li data-value="Q ♥">
+              <p data-suit="♥"><span>Q</span><span>♥</span></p>
+            </li>
+            <li data-value="K ♠">
+              <p data-suit="♠"><span>K</span><span>♠</span></p>
+            </li>
+            <!--  face down card, no data-value -->
+            <li>
+              <p data-suit="♠"><span>K</span><span>♠</span></p>
+            </li>
+          </ul>
+    </body>
+</html>
